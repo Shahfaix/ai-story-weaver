@@ -27,7 +27,7 @@ const LandingPage = () => {
                     Step into the realm of AI StoryWeaver, where your stories unfold with the magic touch of artificial intelligence.
                 </h2>
                 <div className='flex mt-6'>
-                    <Link href="/auth/signUp">
+                    <Link href= "/dashboard">
                         <button className='bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-md transition duration-300 ease-in-out'>
                             Get Started
                         </button>
