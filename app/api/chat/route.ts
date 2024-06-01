@@ -14,9 +14,13 @@ const generationConfig = {
 const model = genAI.getGenerativeModel({ model: "gemini-pro", generationConfig});
 
 export async function POST(request: NextRequest) {
-	const {messages} = await request.json();
-	const prompt = messages[messages.length - 1].content;
+  console.log(request)
+	let {messages} = await request.json();
+  console.log(messages)
+
+	//const prompt = messages[messages.length - 1].content;
 	
-  const result = await model.generateContent(prompt);
-	return NextResponse.json(result.response.text() , { status: 200 });
+  const result = await model.generateContent(messages);
+  console.log(result.response.text())
+	return NextResponse.json({response:result.response.text()} , { status: 200 });
 }
