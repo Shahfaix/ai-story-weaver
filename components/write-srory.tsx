@@ -82,9 +82,7 @@ const WriteStory = () => {
       </div>
       <div>
         <div className="mt-12">
-          <div className="mb-2 flex justify-end">
-            <FaRegCopy />
-          </div>
+         
           <div className="text-neutral-950 bg-gradient-to-r from-indigo-200 via-red-200 to-yellow-100 p-2 w-[30rem] rounded flex flex-col space-y-2">
             <span>AI Suggestions</span>
             {response ? <div>{response}</div> : <></>}
