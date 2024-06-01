@@ -2,17 +2,23 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Button } from './ui/button';
 import { FaRegCopy } from "react-icons/fa";
+import { useChat } from "ai/react";
 
 const WriteStory = () => {
+    const {messages, input, handleInputChange, handleSubmit} = useChat()
     const textAreaRef = useRef(null)
     const [val, setValue] = useState("")
-    const handleChange = (e) => {
+    const handleChange = (e:any) => {
         setValue(e.target.value)
 
-    }
-    useEffect(() => {
-        textAreaRef.current.style.height = textAreaRef.current.scrollHeight + "px"
 
+    }
+    useEffect(()=>{
+//console.log("my messages",messages[0]?.content)
+    },[messages])
+    useEffect(() => {
+        textAreaRef.current.style.height = textAreaRef.current?.scrollHeight + "px"
+ 
     }
     );
     return (
@@ -26,7 +32,7 @@ const WriteStory = () => {
 
                         <textarea className='p-1 active:outline-none' placeholder='Write title for the story' ></textarea>
 
-                        <textarea className='p-1  active:outline-none rounded' placeholder='write your story here ' value={val} onChange={handleChange} rows="1" ref={textAreaRef}>
+                        <textarea className='p-1  active:outline-none rounded' placeholder='write your story here ' value={input} onChange={handleInputChange} rows={1} ref={textAreaRef}>
 
 
                         </textarea>
@@ -35,7 +41,7 @@ const WriteStory = () => {
                     </div>
                     <div className='flex flex-col'>
                         <div className='mt-2'>
-                            <Button className='w-full'>AI Suggestion</Button>
+                            <Button className='w-full' onClick={handleSubmit}>AI Suggestion</Button>
                         </div>
 
                         <div className='mt-2'>
@@ -56,7 +62,16 @@ const WriteStory = () => {
 
 
                         <textarea className='p-1 active:outline-none rounded' placeholder='......'>
+                        <div className="flex-grow rounded-lg border p-4">
+                          
+                 {messages.map((m, index) => (
+              
+              <p className="whitespace-pre-line" key={index}>
+                {m.content}
+                </p>
+            ))}
 
+        </div>
 
                         </textarea>
                     </div>
