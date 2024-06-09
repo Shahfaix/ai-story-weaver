@@ -3,13 +3,16 @@ import React, { useEffect, useRef, useState } from "react";
 import { Button } from "./ui/button";
 import { FaRegCopy } from "react-icons/fa";
 import axios from "axios";
+import { useUser } from "@clerk/nextjs";
 
-const WriteStory = () => {
-  const [input, setInput] = useState("");
-  const [response, setResponse] = useState("");
-  const [acceptedStory, setAcceptedStory] = useState("");
+const WriteStory: React.FC = () => {
+  const [input, setInput] = useState<string>("");
+  const [response, setResponse] = useState<string>("");
+  const [acceptedStory, setAcceptedStory] = useState<string>("");
+  const [title, setTitle] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const textAreaRef = useRef(null);
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (textAreaRef.current) {
@@ -18,10 +21,12 @@ const WriteStory = () => {
   }, [input]);
 
   const str1 =
-    ". Please continue this story after initial content ,do not use difficult words and do not change the initial content I given to you";
-
+    ". Please continue this story after initial content, do not use difficult words and do not change the initial content I given to you and give atleast 100 character suggestion";
+  const { user } = useUser();
+  
   const handleSubmit = async () => {
     const updatedInput = input.concat(str1);
+    setLoading(true);
     try {
       const response = await axios.post("http://localhost:3000/api/chat", {
         messages: updatedInput,
@@ -31,16 +36,37 @@ const WriteStory = () => {
     } catch (error) {
       console.error("Failed to send message:", error);
     }
+    setLoading(false);
+  };
+
+  const handleEndStory = async () => {
+    const updatedInput = input.concat(str1);
+    setLoading(true);
+    try {
+      const response = await axios.post("http://localhost:3000/api/user", {
+        story: input,
+        title: title,
+        user_id: user?.id,
+      });
+      console.log(response.data.response);
+    } catch (error) {
+      console.error("Failed to send message:", error);
+    }
+    setLoading(false);
+    // Clear the input fields
+    setTitle("");
+    setInput("");
   };
 
   const handleAccept = () => {
     setAcceptedStory(response);
-    setInput(response); // Update the input state with the accepted story
-    setResponse(""); // Optionally clear the response after accepting
+    setInput(response);
+    setResponse("");
   };
 
   const handleDecline = () => {
     setResponse("");
+    handleEndStory();
   };
 
   return (
@@ -52,6 +78,8 @@ const WriteStory = () => {
             <textarea
               className="p-1 active:outline-none"
               placeholder="Write title for the story"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
             ></textarea>
             <textarea
               className="p-1 active:outline-none rounded"
@@ -59,13 +87,17 @@ const WriteStory = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               rows={1}
-              ref={textAreaRef} // Corrected reference name
+              ref={textAreaRef}
             ></textarea>
           </div>
           <div className="flex flex-col">
             <div className="mt-2">
-              <Button className="w-full" onClick={handleSubmit}>
-                AI Suggestion
+              <Button
+                className="w-full"
+                onClick={handleSubmit}
+                disabled={loading}
+              >
+                {loading ? "Loading..." : "AI Suggestion"}
               </Button>
             </div>
             <div className="mt-2">
@@ -73,8 +105,9 @@ const WriteStory = () => {
                 className="w-full"
                 variant="destructive"
                 onClick={handleDecline}
+                disabled={loading}
               >
-                End Story
+                {loading ? "Loading..." : "End Story"}
               </Button>
             </div>
           </div>
@@ -82,21 +115,24 @@ const WriteStory = () => {
       </div>
       <div>
         <div className="mt-12">
-         
+          <div className="mb-2 flex justify-end">
+            <FaRegCopy />
+          </div>
           <div className="text-neutral-950 bg-gradient-to-r from-indigo-200 via-red-200 to-yellow-100 p-2 w-[30rem] rounded flex flex-col space-y-2">
             <span>AI Suggestions</span>
             {response ? <div>{response}</div> : <></>}
           </div>
           <div className="mt-2 flex gap-2">
-            <Button className="w-1/2" onClick={handleAccept}>
-              Accept Suggestions
+            <Button className="w-1/2" onClick={handleAccept} disabled={loading}>
+              {loading ? "Loading..." : "Accept Suggestions"}
             </Button>
             <Button
               className="w-1/2"
               variant="destructive"
               onClick={handleDecline}
+              disabled={loading}
             >
-              Decline Suggestions
+              {loading ? "Loading..." : "Decline Suggestions"}
             </Button>
           </div>
         </div>
